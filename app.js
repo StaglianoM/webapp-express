@@ -3,6 +3,7 @@ const app = express();
 const port = 3000;
 const notFound = require('./middlewares/notFound');
 const errorsHandler = require('./middlewares/errorsHandler');
+const moviesRouter = require('./routers/moviesRouter')
 
 
 //middleware static public
@@ -12,6 +13,9 @@ app.use(express.static('public'))
 app.get('/', (req, res) => {
     res.send('server connesso')
 })
+
+//rotte routers
+app.use('/api/movies', moviesRouter)
 
 //Middlewares
 app.use(errorsHandler)
