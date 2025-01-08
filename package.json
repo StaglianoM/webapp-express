@@ -1,0 +1,13 @@
+{
+  "name": "webapp-express",
+  "version": "1.0.0",
+  "description": "SELECT AVG(`vote`) as `avg_vote`, `movies`.`id`\r FROM `movies`\r JOIN `reviews`\r ON `movies`.`id` = `reviews`.`movie_id`\r GROUP BY `movies`.`id`;",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
