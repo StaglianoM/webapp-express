@@ -1,12 +1,16 @@
 const express = require('express');
+const cors = require('cors')
 const app = express();
-const port = 3000;
+const port = process.env.DB_PORT || 3000;
 const notFound = require('./middlewares/notFound');
 const errorsHandler = require('./middlewares/errorsHandler');
 const moviesRouter = require('./routers/moviesRouter')
 
 
 //middleware static public
+app.use(cors({
+    origin: process.env.CORS_ORIGIN
+}))
 app.use(express.static('public'))
 
 //rotta get di root

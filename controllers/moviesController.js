@@ -1,55 +1,59 @@
-const connection = require('../data/db')
+const connection = require("../data/db");
 
-
-
-//elenco dei film
+// Funzione per ottenere tutti i film
 function index(req, res) {
-    const sql = `SELECT * FROM movies`
+    const sql = `SELECT * FROM movies`;
+
 
 
     connection.query(sql, (err, movies) => {
-        // console.log(err)
-        if (err) return res.status(500).json({ message: err.message })
-        // console.log(movies)
-
-        res.json({
-            message: 'index movies'
-        })
-
-    })
-}
-
-
-
-//elenco del singolo film e recensione
-function show(req, res) {
-    const id = parseInt(req.params.id);
-
-    if (isNaN(id)) {
-        return res.status(400).json({
-            error: 'ID non valido'
-        });
-    }
-
-    const sql = `SELECT * FROM movies WHERE id = ?`;
-
-    connection.query(sql, [id], (err, results) => {
         if (err) {
-            console.error('Errore durante la query:', err);
-            return res.status(500).json({
-                error: 'Errore del server'
-            });
+            console.error(err);
+            return res.status(500).json({ message: err.message });
         }
 
-        if (results.length === 0) {
-            return res.status(404).json({
-                message: 'Film non trovato'
-            });
-        }
+        res.json(movies);
     });
-    // Restituisce il primo risultato come oggetto JSON
-    res.json(results[0]);
 }
 
+// Funzione per ottenere i dettagli di un film e le sue recensioni
+function show(req, res) {
+    console.log("Film");
 
-module.exports = { index, show }
+    const id = req.params.id;
+
+    const movieQuery = `SELECT * FROM movies WHERE id = ?`;
+    const reviewsQuery = `SELECT * FROM reviews WHERE movie_id = ?`;
+
+    // Query per il film
+    connection.query(movieQuery, [id], (err, movieResults) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: err.message });
+        }
+
+        // Se il film non esiste, restituiamo un errore
+        if (movieResults.length === 0) {
+            return res.status(404).json({
+                error: "Resource Not Found",
+                message: "Movie not found",
+            });
+        }
+
+        const movie = movieResults[0];
+
+        // Recensioni
+        connection.query(reviewsQuery, [id], (err, reviewResults) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: err.message });
+            }
+
+            movie.reviews = reviewResults;
+
+            res.json(movie);
+        });
+    });
+}
+
+module.exports = { index, show };
