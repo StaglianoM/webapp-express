@@ -2,15 +2,21 @@ const connection = require("../data/db");
 
 // Funzione per ottenere tutti i film
 function index(req, res) {
-    const sql = `SELECT * FROM movies`;
+    let sql = `SELECT * FROM movies`;
 
 
-
+    if (req.query.title) {
+        sql += ` WHERE title LIKE "%${req.query.title}%"`
+    }
     connection.query(sql, (err, movies) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ message: err.message });
         }
+
+        movies.forEach((film) => {
+            film.image = `${process.env.BE_HOST}/img/movies_cover/${film.image}`
+        });
 
         res.json(movies);
     });
