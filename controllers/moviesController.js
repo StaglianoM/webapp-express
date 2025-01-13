@@ -5,8 +5,11 @@ function index(req, res) {
     let sql = `SELECT * FROM movies`;
 
 
-    if (req.query.title) {
-        sql += ` WHERE title LIKE "%${req.query.title}%"`
+    if (req.query.search) {
+        sql += ` WHERE title LIKE '%${req.query.search}%' 
+        OR director LIKE '%${req.query.search}%' 
+        OR abstract LIKE '%${req.query.search}%' 
+        OR genre LIKE '%${req.query.search}%'`
     }
     connection.query(sql, (err, movies) => {
         if (err) {
