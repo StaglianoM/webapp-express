@@ -11,7 +11,9 @@ const moviesRouter = require('./routers/moviesRouter')
 app.use(cors({
     origin: process.env.CORS_ORIGIN
 }))
+app.use(express.json())
 app.use(express.static('public'))
+
 
 //rotta get di root
 app.get('/', (req, res) => {

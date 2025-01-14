@@ -81,4 +81,26 @@ function show(req, res) {
     });
 }
 
-module.exports = { index, show };
+function storeReview(req, res) {
+    const id = req.params.id
+
+    const { text, vote, name } = req.body
+
+    console.log(id, text, vote, name)
+    const intVote = parseInt(vote)
+
+    if (!name.trim || !vote || isNaN(intVote) || intVote < 1 || intVote > 5 || name?.length > 255 || typeof name !== 'string') {
+        return res.status(400).json({ error: 'Data is invalid' })
+    }
+
+    const sql = "INSERT INTO reviews (text, name, vote, movie_id) VALUES (?, ?, ?, ?)"
+
+    connection.query(sql, [text, name, vote, id], (err, results) => {
+        if (err) return res.status(500).json({ error: 'Database query failed' })
+        res.status(201).json({ message: 'Review added', id: results.insertId })
+
+    })
+
+}
+
+module.exports = { index, show, storeReview };
