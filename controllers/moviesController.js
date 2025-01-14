@@ -2,7 +2,12 @@ const connection = require("../data/db");
 
 // Funzione per ottenere tutti i film
 function index(req, res) {
-    let sql = `SELECT * FROM movies`;
+    let sql =
+        `SELECT movies.*, AVG(vote) AS avg_vote
+    FROM movies
+    JOIN reviews
+    ON movies.id = reviews.movie_id
+`
 
 
     if (req.query.search) {
@@ -11,14 +16,18 @@ function index(req, res) {
         OR abstract LIKE '%${req.query.search}%' 
         OR genre LIKE '%${req.query.search}%'`
     }
+
+    sql += `GROUP BY movies.id`
+
+
     connection.query(sql, (err, movies) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ message: err.message });
         }
 
-        movies.forEach((film) => {
-            film.image = `${process.env.BE_HOST}/img/movies_cover/${film.image}`
+        movies.forEach((movies) => {
+            movies.image = `${process.env.BE_HOST}/movies_cover/${movies.image}`;
         });
 
         res.json(movies);
@@ -31,7 +40,13 @@ function show(req, res) {
 
     const id = req.params.id;
 
-    const movieQuery = `SELECT * FROM movies WHERE id = ?`;
+    const movieQuery = `SELECT movies.*, AVG(vote) AS avg_vote
+    FROM movies
+    JOIN reviews
+    ON movies.id = reviews.movie_id 
+    WHERE movies.id = ?
+    GROUP BY movies.id`;
+
     const reviewsQuery = `SELECT * FROM reviews WHERE movie_id = ?`;
 
     // Query per il film
@@ -49,7 +64,8 @@ function show(req, res) {
             });
         }
 
-        const movie = movieResults[0];
+        const movies = movieResults[0];
+        movies.image = `${process.env.BE_HOST}/img/movies_cover/${movies.image}`
 
         // Recensioni
         connection.query(reviewsQuery, [id], (err, reviewResults) => {
@@ -58,9 +74,9 @@ function show(req, res) {
                 return res.status(500).json({ message: err.message });
             }
 
-            movie.reviews = reviewResults;
+            movies.reviews = reviewResults;
 
-            res.json(movie);
+            res.json(movies);
         });
     });
 }
